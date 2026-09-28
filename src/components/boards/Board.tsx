@@ -1,3 +1,5 @@
+import { HeatmapControls } from "@/features/heatmap/HeatmapControls";
+import { heatmapSettingsAtom } from "@/features/heatmap/state";
 import type { DrawBrushes, DrawShape } from "@lichess-org/chessground/draw";
 import { ActionIcon, Box, Center, Group, Text, useMantineTheme } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
@@ -98,6 +100,7 @@ function Board({
   enablePremoves = false,
 }: ChessboardProps) {
   const { t } = useTranslation();
+  const heatmapSettings = useAtomValue(heatmapSettingsAtom);
 
   const store = useContext(TreeStateContext)!;
 
@@ -406,6 +409,7 @@ function Board({
             }}
             height={BAR_HEIGHT}
           >
+            <HeatmapControls />
             <ShowMaterial
               fen={currentNode.fen}
               color={orientation === "white" ? "black" : "white"}
@@ -504,6 +508,12 @@ function Board({
               />
 
               <Chessground
+                heatmap={{
+                  fen: currentNode.fen,
+                  settings: heatmapSettings,
+                  editing: !!editingMode,
+                  viewOnly: !!viewOnly,
+                }}
                 ref={cgRef}
                 setBoardFen={setBoardFen}
                 orientation={orientation}

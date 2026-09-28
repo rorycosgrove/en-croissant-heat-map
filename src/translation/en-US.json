@@ -609,6 +609,25 @@
     "TimeControl.Classical": "Classical",
     "TimeControl.Correspondence": "Correspondence",
     "TimeControl.Rapid": "Rapid",
-    "TimeControl.UltraBullet": "UltraBullet"
+    "TimeControl.UltraBullet": "UltraBullet",
+    "Heatmap.Title": "Heatmap",
+    "Heatmap.Enabled": "Thermal landscape",
+    "Heatmap.Cold": "White · cold",
+    "Heatmap.Neutral": "Neutral",
+    "Heatmap.Hot": "Black · hot",
+    "Heatmap.Heuristic": "Weighted heat field, not an engine evaluation.",
+    "Heatmap.Opacity": "Opacity",
+    "Heatmap.Spread": "Spread",
+    "Heatmap.Decay": "Distance decay",
+    "Heatmap.Scale": "Fixed temperature scale",
+    "Heatmap.Pawn": "Pawn",
+    "Heatmap.Knight": "Knight",
+    "Heatmap.Bishop": "Bishop",
+    "Heatmap.Rook": "Rook",
+    "Heatmap.Queen": "Queen",
+    "Heatmap.King": "King (influence)",
+    "Heatmap.Reset": "Reset defaults",
+    "Heatmap.Unavailable": "Heatmap unavailable for this position",
+    "Heatmap.PromotionPreview": "Queen promotion preview"
   }
 }

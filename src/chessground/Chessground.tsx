@@ -6,6 +6,11 @@ import { useAtomValue } from "jotai";
 import { type Ref, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { boardImageAtom, moveMethodAtom } from "@/state/atoms";
 
+import { HeatmapCanvas } from "@/features/heatmap/HeatmapCanvas";
+import { useHeatmapPreview } from "@/features/heatmap/useHeatmapPreview";
+import type { HeatmapSettings } from "@/features/heatmap/model";
+import { useTranslation } from "react-i18next";
+
 const BOARD_COORDINATE_COLORS: Record<string, { white: string; black: string }> = {
   blue: { white: "#dee3e6", black: "#788a94" },
   blue2: { white: "#97b2c7", black: "#546f82" },
@@ -54,14 +59,31 @@ export interface ChessgroundRef {
 }
 
 interface ChessgroundProps extends Config {
+  heatmap?: { fen: string; settings: HeatmapSettings; editing: boolean; viewOnly: boolean };
   setBoardFen?: (fen: string) => void;
   ref?: Ref<ChessgroundRef>;
 }
 
-export function Chessground({ ref, ...props }: ChessgroundProps) {
+export function Chessground({ ref, heatmap, ...props }: ChessgroundProps) {
   const [api, setApi] = useState<Api | null>(null);
 
   const boardRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
+  const preview = useHeatmapPreview({
+    fen: heatmap?.fen ?? "",
+    api,
+    orientation: props.orientation,
+    enabled: heatmap?.settings.enabled ?? false,
+    editing: heatmap?.editing ?? false,
+    viewOnly: heatmap?.viewOnly ?? false,
+  });
+  useEffect(
+    () => () => {
+      api?.stop();
+      api?.destroy();
+    },
+    [api],
+  );
 
   const moveMethod = useAtomValue(moveMethodAtom);
 
@@ -140,14 +162,47 @@ export function Chessground({ ref, ...props }: ChessgroundProps) {
 
   return (
     <Box
+      className={heatmap?.settings.enabled ? "heatmap-surface" : undefined}
       style={{
+        position: "relative",
+        backgroundImage: heatmap?.settings.enabled ? `url('/board/${boardImage}')` : undefined,
+        backgroundSize: "cover",
         aspectRatio: 1,
         width: "100%",
         "--board-image": `url('/board/${boardImage}')`,
         "--board-coord-color-white": boardCoordColors.white,
         "--board-coord-color-black": boardCoordColors.black,
       }}
-      ref={boardRef}
-    />
+    >
+      {heatmap && (
+        <HeatmapCanvas
+          fen={preview?.fen ?? heatmap.fen}
+          orientation={props.orientation ?? "white"}
+          settings={heatmap.settings}
+        />
+      )}
+      <Box
+        ref={boardRef}
+        style={{ width: "100%", height: "100%", position: "relative", zIndex: 1 }}
+      />
+      {preview?.promotes && (
+        <span
+          role="status"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            zIndex: 3,
+            pointerEvents: "none",
+            background: "#20252d",
+            color: "white",
+            fontSize: 12,
+            padding: 4,
+          }}
+        >
+          {t("Heatmap.PromotionPreview", "Queen promotion preview")}
+        </span>
+      )}
+    </Box>
   );
 }

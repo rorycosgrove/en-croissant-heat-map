@@ -1,6 +1,6 @@
 # En Croissant thermal landscape
 
-Status: proposed for review; implementation not started.
+Status: approved; initial implementation on feature/thermal-landscape. Native/visual acceptance checks are recorded in docs/thermal-landscape.md.
 
 ## Goal and scope
 Extend En Croissant rather than build a separate chess application. Display one smooth signed temperature field beneath readable pieces: White cools, Black heats. Support manual exploration, game playback, and live legal-destination drag previews. Reuse existing Stockfish and SQLite game database integration, including the user's LumbrasGigaBase2025-06.db3. No database migration or engine modification.
@@ -52,3 +52,6 @@ Destination: https://github.com/rorycosgrove/en-croissant-heat-map, feature bran
 
 ## Review
 The core visual requirements were agreed in conversation. This document makes the additional model defaults explicit for review. Next stage after review: implementation plan and execution under the selected Superpowers workflow.
+
+## Approved extension boundary
+After specification approval, the user confirmed implementing the existing smooth field first while supporting future simulation. HeatModel exposes setPosition, advance, reset and getField; an optional animated flag enables time stepping. The initial directional backend is static. Source generation remains separate from rendering and board interaction. No fluid solver is part of this release.

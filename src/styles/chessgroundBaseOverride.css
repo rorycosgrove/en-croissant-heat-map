@@ -223,3 +223,9 @@ piece.fading {
 .cg-custom-below {
   display: none;
 }
+
+/* Canvas is a sibling of Chessground's owned DOM, beneath all native pieces/highlights. */
+.heatmap-surface cg-board {
+  background-image: none !important;
+  background-color: transparent;
+}
