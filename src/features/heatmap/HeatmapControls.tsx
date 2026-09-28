@@ -38,6 +38,19 @@ export function HeatmapControls() {
             checked={settings.enabled}
             onChange={(e) => setSettings({ ...settings, enabled: e.currentTarget.checked })}
           />
+          <Switch
+            label={t("Heatmap.ActivityContours", "Activity contours")}
+            checked={settings.activityContours}
+            onChange={(e) =>
+              setSettings({ ...settings, activityContours: e.currentTarget.checked })
+            }
+          />
+          <Text size="xs" c="dimmed">
+            {t(
+              "Heatmap.ActivityHelp",
+              "Contours show White + Black influence. Neutral colour with contours can indicate strong opposition.",
+            )}
+          </Text>
           <Group justify="space-between">
             <Text size="xs" c="blue">
               {t("Heatmap.Cold", "White · cold")}

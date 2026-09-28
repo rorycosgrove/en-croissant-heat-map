@@ -110,3 +110,51 @@ it("reports invalid positions without crashing and keeps independent models", ()
   );
   expect(container.querySelector('[role="status"]')?.textContent).toContain("unavailable");
 });
+it("draws contours for balanced activity and disables them for v1 comparison", () => {
+  const lines: number[][] = [];
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(
+    () =>
+      ({
+        clearRect() {},
+        createImageData(w: number, h: number) {
+          return { data: new Uint8ClampedArray(w * h * 4) };
+        },
+        putImageData() {},
+        drawImage() {},
+        save() {},
+        restore() {},
+        translate() {},
+        scale() {},
+        setTransform() {},
+        beginPath() {},
+        moveTo(x: number, y: number) {
+          lines.push([x, y]);
+        },
+        lineTo(x: number, y: number) {
+          lines.push([x, y]);
+        },
+        stroke() {},
+      }) as any,
+  );
+  const sides = Float32Array.from({ length: 256 }, (_, i) => i % 16);
+  const factory = () => ({
+    ...fakeModel(),
+    getField: () => ({ values: new Float32Array(256), white: sides, black: sides, resolution: 16 }),
+  });
+  const render = (activityContours: boolean) =>
+    act(() =>
+      root.render(
+        <HeatmapCanvas
+          fen="balanced"
+          orientation="white"
+          settings={{ ...DEFAULT_SETTINGS, enabled: true, activityContours }}
+          createModel={factory}
+        />,
+      ),
+    );
+  render(true);
+  expect(lines.length).toBeGreaterThan(0);
+  lines.length = 0;
+  render(false);
+  expect(lines).toHaveLength(0);
+});

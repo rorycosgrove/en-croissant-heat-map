@@ -4,6 +4,7 @@ import { kingAttacks, knightAttacks, pawnAttacks } from "chessops/attacks";
 
 export interface HeatmapSettings {
     enabled: boolean;
+    activityContours: boolean;
     opacity: number;
     spread: number;
     decay: number;
@@ -12,6 +13,7 @@ export interface HeatmapSettings {
 }
 export const DEFAULT_SETTINGS: HeatmapSettings = {
     enabled: false,
+    activityContours: true,
     opacity: 0.65,
     spread: 0.3,
     decay: 0.25,
@@ -27,6 +29,7 @@ export function sanitizeSettings(input: unknown): HeatmapSettings {
         w = object(s.weights);
     return {
         enabled: typeof s.enabled === "boolean" ? s.enabled : false,
+        activityContours: typeof s.activityContours === "boolean" ? s.activityContours : true,
         opacity: finite(s.opacity, 0.65, 0, 1),
         spread: finite(s.spread, 0.3, 0.1, 1.5),
         decay: finite(s.decay, 0.25, 0, 2),

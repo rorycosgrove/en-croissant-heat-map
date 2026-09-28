@@ -15,3 +15,18 @@ it("persists validated settings and reset restores defaults", () => {
     unsubscribe();
     off();
 });
+it("migrates old settings to activity contours and persists the comparison toggle", () => {
+    localStorage.setItem(
+        "heatmap-settings-v1",
+        JSON.stringify({ enabled: true, weights: { queen: 10 } }),
+    );
+    const store = createStore();
+    const off = store.sub(heatmapSettingsAtom, () => {});
+    expect(store.get(heatmapSettingsAtom).activityContours).toBe(true);
+    store.set(heatmapSettingsAtom, { ...store.get(heatmapSettingsAtom), activityContours: false });
+    off();
+    const other = createStore();
+    const unsub = other.sub(heatmapSettingsAtom, () => {});
+    expect(other.get(heatmapSettingsAtom).activityContours).toBe(false);
+    unsub();
+});

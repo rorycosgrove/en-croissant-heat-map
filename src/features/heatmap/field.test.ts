@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Board } from "chessops/board";
 import { makeSquare, parseSquare, type Role, type Color } from "chessops";
 import { buildPrimitives, DEFAULT_SETTINGS, sanitizeSettings } from "./model";
-import { calculateField, sampleField, createDirectionalModel } from "./field";
+import { calculateField, sampleField, sampleInfluence, createDirectionalModel } from "./field";
 function board(role: Role, color: Color = "white", square = "e4") {
     const b = Board.empty();
     b.set(parseSquare(square as "e4")!, { role, color });
@@ -106,4 +106,37 @@ describe("directional temperature", () => {
         model.reset();
         expect(model.getField()).toBeNull();
     });
+});
+
+it("accumulates converging pieces without losing opposing activity at neutrality", () => {
+    const whiteBoard = Board.empty();
+    whiteBoard.set(parseSquare("d1")!, { role: "rook", color: "white" });
+    const one = sampleInfluence(buildPrimitives(whiteBoard, DEFAULT_SETTINGS), 3.5, 3.5);
+    whiteBoard.set(parseSquare("a1")!, { role: "bishop", color: "white" });
+    const two = sampleInfluence(buildPrimitives(whiteBoard, DEFAULT_SETTINGS), 3.5, 3.5);
+    expect(two.white).toBeGreaterThan(one.white);
+    expect(two.black).toBe(0);
+    const opposing = Board.empty();
+    opposing.set(parseSquare("d8")!, { role: "rook", color: "black" });
+    const mirrored = Board.empty();
+    mirrored.set(parseSquare("d1")!, { role: "rook", color: "white" });
+    const field = [
+        ...buildPrimitives(mirrored, DEFAULT_SETTINGS),
+        ...buildPrimitives(opposing, DEFAULT_SETTINGS),
+    ];
+    const middle = sampleInfluence(field, 3.5, 4);
+    expect(middle.white).toBeGreaterThan(0);
+    expect(middle.white).toBeCloseTo(middle.black, 8);
+    expect(middle.black - middle.white).toBeCloseTo(0, 8);
+});
+
+it("retains both nonnegative channels with temperature equal to black minus white", () => {
+    const field = calculateField("3r4/8/8/8/8/8/8/3R4 w - - 0 1", DEFAULT_SETTINGS, 32)!;
+    expect(field.white).toHaveLength(1024);
+    expect(field.black).toHaveLength(1024);
+    for (let i = 0; i < field.values.length; i++) {
+        expect(field.white![i]).toBeGreaterThanOrEqual(0);
+        expect(field.black![i]).toBeGreaterThanOrEqual(0);
+        expect(field.values[i]).toBeCloseTo(field.black![i] - field.white![i], 5);
+    }
 });

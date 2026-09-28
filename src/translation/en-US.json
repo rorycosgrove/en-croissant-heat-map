@@ -628,6 +628,8 @@
     "Heatmap.King": "King (influence)",
     "Heatmap.Reset": "Reset defaults",
     "Heatmap.Unavailable": "Heatmap unavailable for this position",
-    "Heatmap.PromotionPreview": "Queen promotion preview"
+    "Heatmap.PromotionPreview": "Queen promotion preview",
+    "Heatmap.ActivityContours": "Activity contours",
+    "Heatmap.ActivityHelp": "Contours show White + Black influence. Neutral colour with contours can indicate strong opposition."
   }
 }

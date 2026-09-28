@@ -42,6 +42,10 @@ it("integrates a sibling canvas while retaining the native pieces and rerenderin
           );
         },
         drawImage() {},
+        beginPath() {},
+        moveTo() {},
+        lineTo() {},
+        stroke() {},
         save() {},
         restore() {},
         translate() {},

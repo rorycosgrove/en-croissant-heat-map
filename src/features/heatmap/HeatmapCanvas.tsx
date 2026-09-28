@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { createDirectionalModel, type HeatField, type HeatModel } from "./field";
 import type { HeatmapSettings } from "./model";
 import { fieldToRgba } from "./render";
+import { activityValues, activityContours, contourLevels, interpolateFields } from "./activity";
 
 interface Props {
   fen: string;
@@ -84,6 +85,28 @@ export function HeatmapCanvas({
         context.scale(-1, 1);
       }
       context.drawImage(buffer, 0, 0, w, h);
+      if (settings.activityContours && settings.opacity > 0) {
+        const activity = activityValues(current);
+        if (activity) {
+          const segments = activityContours(
+            activity,
+            current.resolution,
+            contourLevels(settings.scale),
+          );
+          context.beginPath();
+          for (const [x1, y1, x2, y2] of segments) {
+            context.moveTo(x1 * w, y1 * h);
+            context.lineTo(x2 * w, y2 * h);
+          }
+          // A subdued dark under-stroke keeps the pale contours readable on either board colour.
+          context.strokeStyle = `rgba(15,20,28,${settings.opacity * 0.35})`;
+          context.lineWidth = 2.5 * dpr;
+          context.stroke();
+          context.strokeStyle = `rgba(235,239,245,${settings.opacity * 0.75})`;
+          context.lineWidth = 1 * dpr;
+          context.stroke();
+        }
+      }
       context.restore();
       previous.current = current;
     };
@@ -94,10 +117,7 @@ export function HeatmapCanvas({
         model.advance(Math.min(0.05, Math.max(0, (now - last) / 1000)));
         current = model.getField() ?? target;
       } else if (fraction < 1 && source !== target) {
-        const values = new Float32Array(target.values.length);
-        for (let i = 0; i < values.length; i++)
-          values[i] = source.values[i] + (target.values[i] - source.values[i]) * fraction;
-        current = { values, resolution: target.resolution };
+        current = interpolateFields(source, target, fraction);
       } else current = target;
       last = now;
       draw();
